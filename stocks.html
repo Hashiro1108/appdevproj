@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JAK Inventory Management Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: #1a1a1a;
+            color: #333;
+        }
+
+        .container {
+            display: flex;
+            height: 100vh;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 220px;
+            background-color: #F48610;
+            color: white;
+            padding-top: 10px;
+        }
+
+        .logo-container {
+            text-align: center;
+            padding: 15px 0;
+        }
+
+        .logo {
+            width: 80px;
+            height: 80px;
+            background-color: white;
+            border-radius: 5px;
+            object-fit: contain;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            padding: 15px 20px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background-color 0.2s;
+        }
+
+        .nav-item:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+
+        .nav-item.active {
+            background-color: #1C1106;
+        }
+
+        .nav-item i {
+            margin-right: 10px;
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Header */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 20px;
+            background-color: white;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .breadcrumb {
+            color: #777;
+        }
+
+        .search-container {
+            flex: 1;
+            max-width: 450px;
+            margin: 0 auto;
+        }
+
+        .search-bar {
+            width: 100%;
+            padding: 8px 15px;
+            border-radius: 20px;
+            border: 1px solid #ddd;
+            padding-left: 35px;
+        }
+
+        .search-icon {
+            position: absolute;
+            margin-top: 8px;
+            margin-left: 10px;
+            color: #777;
+        }
+
+        .user-actions {
+            display: flex;
+            gap: 15px;
+        }
+
+        .user-actions i {
+            font-size: 20px;
+            color: #777;
+            cursor: pointer;
+        }
+
+        /* Orange bar */
+        .orange-bar {
+            height: 40px;
+            background-color: #f08c00;
+        }
+
+        /* Dashboard Content */
+        .dashboard-content {
+            flex: 1;
+            background-color: #f5f5f5;
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        .dashboard-header {
+            margin-bottom: 20px;
+            color: #ff5252;
+            text-transform: uppercase;
+            font-size: 14px;
+            font-weight: bold;
+        }
+
+        .user-profile {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .profile-img {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            margin-right: 10px;
+        }
+
+        .profile-name {
+            font-weight: 500;
+            color: #333;
+        }
+
+        .add-icon {
+            margin-left: 10px;
+            color: #777;
+            cursor: pointer;
+        }
+
+        /* Sales Chart */
+        .sales-chart-container {
+            background-color: white;
+            border-radius: 5px;
+            padding: 15px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+
+        .sales-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 15px;
+        }
+
+        .sales-title {
+            font-size: 14px;
+            font-weight: bold;
+            padding: 5px 10px;
+            border: 1px solid #ddd;
+            border-radius: 3px;
+        }
+
+        .date-picker {
+            display: flex;
+            align-items: center;
+        }
+
+        .date-input {
+            padding: 5px 10px;
+            border: 1px solid #ddd;
+            border-radius: 3px;
+        }
+
+        .chart-container {
+            position: relative;
+            height: 180px;
+            padding-bottom: 30px;
+            margin-top: 20px;
+        }
+
+        .chart {
+            position: relative;
+            height: 100%;
+            width: 100%;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .price-labels {
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 30px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            color: #777;
+            font-size: 12px;
+        }
+
+        .price-label {
+            transform: translateY(-50%);
+        }
+
+        .chart-grid {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .grid-line {
+            height: 1px;
+            background-color: rgba(0,0,0,0.05);
+            width: 100%;
+        }
+
+        .vertical-line {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            width: 1px;
+            background-color: rgba(0,0,0,0.05);
+        }
+
+        .chart-line {
+            position: absolute;
+            top: 0;
+            left: 40px;
+            right: 0;
+            bottom: 0;
+            z-index: 2;
+        }
+
+        .line-one {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            stroke: #000;
+            stroke-width: 2px;
+            fill: none;
+        }
+
+        .line-two {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            stroke: #f08c00;
+            stroke-width: 2px;
+            fill: none;
+        }
+
+        .chart-area {
+            position: absolute;
+            left: 40px;
+            right: 0;
+            bottom: 0;
+            height: 100%;
+            z-index: 1;
+        }
+        
+        .area-fill {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            fill: rgba(240, 140, 0, 0.2);
+        }
+
+        .total-amount {
+            position: absolute;
+            top: 20px;
+            right: 30px;
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        .chart-labels {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 10px;
+            color: #777;
+            font-size: 12px;
+            padding-left: 40px;
+        }
+
+        /* Bottom Cards */
+        .bottom-cards {
+            display: flex;
+            gap: 20px;
+        }
+
+        .card {
+            flex: 1;
+            background-color: white;
+            border-radius: 5px;
+            padding: 15px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+
+        .stocks-card {
+            background-color: #181818;
+            color: white;
+        }
+
+        .stocks-title {
+            margin-bottom: 15px;
+            font-size: 14px;
+        }
+
+        .stocks-amount {
+            font-size: 36px;
+            font-weight: bold;
+            color: #f08c00;
+            margin-bottom: 5px;
+        }
+
+        .stocks-percentage {
+            font-size: 12px;
+            color: #aaa;
+            margin-bottom: 20px;
+        }
+
+        .progress-container {
+            position: relative;
+        }
+
+        .progress-bg {
+            height: 100px;
+            width: 100px;
+            border-radius: 50%;
+            background-color: #333;
+            margin: 0 auto;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .progress-fill {
+            height: 100px;
+            width: 100px;
+            border-radius: 50%;
+            background: conic-gradient(#f08c00 0% 80%, transparent 80% 100%);
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
+
+        .progress-center {
+            height: 70px;
+            width: 70px;
+            border-radius: 50%;
+            background-color: #181818;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1;
+        }
+
+        .progress-percentage {
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        /* Products Card */
+        .products-card {
+            flex: 2;
+        }
+
+        .products-header {
+            margin-bottom: 20px;
+            font-weight: bold;
+        }
+
+        .products-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .products-table th {
+            text-align: left;
+            padding: 10px;
+            color: #777;
+            font-weight: normal;
+            font-size: 12px;
+        }
+
+        .products-table td {
+            padding: 10px;
+            border-top: 1px solid #f0f0f0;
+        }
+
+        .product-name {
+            font-weight: 500;
+        }
+
+        .product-info {
+            font-size: 12px;
+            color: #777;
+        }
+
+        .popularity-bar {
+            height: 5px;
+            background-color: #f0f0f0;
+            border-radius: 5px;
+            position: relative;
+            width: 100%;
+        }
+
+        .popularity-fill {
+            position: absolute;
+            height: 5px;
+            background-color: #f08c00;
+            border-radius: 5px;
+        }
+
+        .sales-percentage {
+            font-weight: bold;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="logo-container">
+                <img src="download.jfif" alt="JAK Logo" class="logo">
+            </div>
+            <div class="nav-item active">
+                <i><svg width="42" height="42" viewBox="0 0 42 42" fill="none" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+                    <rect width="42" height="42" fill="url(#pattern0_4_51)"/>
+                    <defs>
+                    <pattern id="pattern0_4_51" patternContentUnits="objectBoundingBox" width="1" height="1">
+                    <use xlink:href="#image0_4_51" transform="scale(0.015625)"/>
+                    </pattern>
+                    <image id="image0_4_51" width="64" height="64" preserveAspectRatio="none" xlink:href="data:image/png;base64,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"/>
+                    </defs>
+                    </svg>
+                    </i> Dashboard
+            </div>
+            <div class="nav-item">
+                <i><svg width="42" height="42" viewBox="0 0 42 42" fill="none" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+                    <rect width="42" height="42" fill="url(#pattern0_4_51)"/>
+                    <defs>
+                    <pattern id="pattern0_4_51" patternContentUnits="objectBoundingBox" width="1" height="1">
+                    <use xlink:href="#image0_4_51" transform="scale(0.015625)"/>
+                    </pattern>
+                    <image id="image0_4_51" width="64" height="64" preserveAspectRatio="none" xlink:href="data:image/png;base64,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"/>
+                    </defs>
+                    </svg>
+                    </i> Stocks
+            </div>
+            <div class="nav-item">
+                <i><svg width="42" height="42" viewBox="0 0 42 42" fill="none" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+                    <rect width="42" height="42" fill="url(#pattern0_4_53)"/>
+                    <defs>
+                    <pattern id="pattern0_4_53" patternContentUnits="objectBoundingBox" width="1" height="1">
+                    <use xlink:href="#image0_4_53" transform="scale(0.015625)"/>
+                    </pattern>
+                    <image id="image0_4_53" width="64" height="64" preserveAspectRatio="none" xlink:href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAAACXBIWXMAAA7DAAAOwwHHb6hkAAAAGXRFWHRTb2Z0d2FyZQB3d3cuaW5rc2NhcGUub3Jnm+48GgAABLBJREFUeJztm02IVlUYx3/PaGOZuKhN9kEELbKMICLURVRSZgszyenDFlFJOwOjdtEm2mVQi4RctNJ0iBYJU0FWiI2NtaisKMISrSAQE7XMr1+L+745c+fed+5933vnztT84N2c85xznue577n3nP89FypAvVR9Tt2lHjGfIy2bZ9VLqhi7cdSH1cMdgs7jsPpQ0/73hLqhi8BHc059uuk4ukJd1gqgV86qdzQdTynUUL+tIPg2+9RoIpZQt3fRbh6wIqP8GPAqsA84m6qbBdwIrG+1TzMEHC/rSEQMlG0zpr1qLx2M4gywNCL2djJSbwV2A7OrGDQievrn9FXhRIs9EwUPEBEjwEiF4/ZElQn4rYTtLxWO2xNVJmBakjcPh4FDJfvaU5NtmyuBJV2060zOY2lN5QP1iLomy9Fe+/3fT4GZBDTtQNPMJKBpB5qmtgSo96mb1Smd5ErW42nUB4AtwAXALPWJiDhXx1i9UvnVUQc4HzzAY8AbU/WfUNopE/3vlpy6RxkbfJvHgZfLu1c/pRKgzifZt3+sLkvVPQK8SbLvT/M3sLNLH+ul6FJYnat+MsrmhLq8VfekibSVxQn1rgr8rGUpXCgB6kXqzgy7k+om87XB41ak99WVgKJT4HbgtozyOcBTQJYqcwxYEREfpSvUfvXtnKSNuwB1UigBETEErAVOF+z3KLA8InalK9R+YBuwuqiTdVL4JhgRbadPTmB6FLgnIobTFeocYBBYVcbJOin1FIiIHcD9wF85Jn8Ad0fEOMFDnQu8C6ws62SdlF4HRMR7wDLg+1TVXmBJS/Qcg3oxsAPo+WlQNXmy+EBEDHZqaLKyuxm4AtgfEV93sL2O5J1AUYYjYowkp2ZKYhP5OSFN34WbZkquzyeTmQTU1bG6Up2yu8A2dekBq4GtQD/Qp64roweYvCleCFxN9ovUMhwHDgDfRcT4G37VN0H1QfV0qr9NFnj9rc5TX1APdVgmd8tB9XmTR3L3CbCzHrBWPZPT58YJgl+k7q866gx+VG/oKgHqfHXEZJc3Tg9w/JVvc1LNXQGq16i/VxtnRw6r15ZKgMnfc/com6J6wJ920ANMTpuMVBNXKfaoMRl6wJ15wbf6Xt1rJD2wqmgCVpg/t/M4pmZpCOkEbM9p/6K6YKL2Bfq/XH0pZ4y3ykyBTnM8zVF1aUEHD2S039pr4BnjbMsY5+cyesAWYAA4NYFpe0v8acGuL8soe7+oXyUYyihbUFYPeIdEzOikByyPiM9KdNufUXaijF8Fyeqzvxs9YIhED/ghVfUFySmxKXMAqghdLYUjYlhdyHk94KeI+KpSz1Koi4ENBc03ZqlSWXS9F2it7T9v/SaDq4CiS/RBCp5DmtI7tclgJgFNO9A0tegBNXGQZG4XtS3EtElA667e08nwLP73U2AmAU070DQzCSB5j5+m5334dKGP7EfGOvXCyXamCWYDHwDXp8oXAXvVzcCvFY11KOvMQA6LrexTpvN9ZhWGiUT8Jdmnu6pkMOsLL2uItAx9EfEN8HqTTjRJ+ynwDPBhk440RR9ARJwC7gVeY/wHj/9p/l0HRMSpiFgP3AS8QvL1Z+kvOacb/wAuKB5LVpdVhQAAAABJRU5ErkJggg=="/>
+                    </defs>
+                    </svg>
+                    </i> Inventory
+            </div>
+            <div class="nav-item">
+                <i><svg width="42" height="42" viewBox="0 0 42 42" fill="none" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+                    <rect width="42" height="42" fill="url(#pattern0_4_55)"/>
+                    <defs>
+                    <pattern id="pattern0_4_55" patternContentUnits="objectBoundingBox" width="1" height="1">
+                    <use xlink:href="#image0_4_55" transform="scale(0.015625)"/>
+                    </pattern>
+                    <image id="image0_4_55" width="64" height="64" preserveAspectRatio="none" xlink:href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAAACXBIWXMAAA7DAAAOwwHHb6hkAAAAGXRFWHRTb2Z0d2FyZQB3d3cuaW5rc2NhcGUub3Jnm+48GgAAA4dJREFUeJztm8+PFEUUxz81u0oiaoCDAVmMEOXARfyBBnFRiWC8+gcQlIvxX+AoMUZjIp6MicQziRrlIF7EGFg8qBcTD6AH2V0UjTEIui5BPx66JhS7Pe6Y6e6a2e3PZarqver+vrfdPbVT/aBlZRP6cVLXAJuACeDWWhUNzhVgBjgfQri0lHPPBKirgYPAs8BjwFhVChvib+AU8B7wTgjhz75nqgfVCy4fZtXnymINCwJfBbwN7E+G54FPgSmKS+uP//V3aJ7VFLfqLuBJYFViexd4IYQwv2iWOq5+kmRtTn1FXduE6jpQ16mvxli6nFDHy5zfTJzOqw9k0FwL6oPqdBLfGwsdHk+MF9W780itD3Wz+ksS52TXENQvEsOezFprQ92bxDmlBtRHksEPeky8Q31a3VaHvUnUj5J4d6C+nAw8UTLhGfVK4nOkSnvTqHsSLYeJl4Lqr5Y8HdVvXcy2quxNY/Ft91vUcaoDbIy2syGEayVz7lpibFB7o8QYz8buRAdYHzsXe8z5bEH/MvBlhfYc/Bg/N5BclsfKPNWN6nH1kvqNuq9Kew7UY92gl0zAciRNQCe3mNy0CcgtIDcrPgFBNbZngDM5xTTITorfDG5IwIpkxd8C7Togt5jctAnILSA3bQKaOpE6ph5WX1KHZpdp8e/j9bEXOBTbp4ETDZ67J03eArf1aGelfQbkFpCboUqAul29r8lzDk0CYuBfAV83mYShSQCwlUJPJ7YbYZgSkIU2AbkF5KayBKgb1O/Vc+r6pWcMB1VeATuBLcA9wKMVHrdWqkzAWI92ZdSxThiZZ0Bd64SRSQA1rRNGKQG10CYgt4DctAkArsb2zTmFNEw31qsd4KfYGZnVWwXcGT8vdIDZ2Nlq2UvEywz1JuDe2J3tACdjZy0wOcCxvwME/gHOZbD3y25gTWyfRH042SD9cIADo96vbs9l71Pj8STeh7ovS59JBp8a5ATDjLovifO0GrqG3YnhZ3VzZq2Vo27xxtfldy10OJIYZ9UdmbRWTvwv8ockvtfLnMYtykm6zFmUm6zLoLkSLEpmXlP/SuL62GRvsqxo6i3gQDI8T/FNMQVMMxpFU5u4XjSVLvCOAi+WFk2lqAfUGZcP0+r+slj/q3DyFuB5isLJSZrdSa6Ca8DnwPvA0RDCXJlTv6Wzt1O84z/BEO3s9uAy10tnf88tpmXY+RdkqjRYyj2VGwAAAABJRU5ErkJggg=="/>
+                    </defs>
+                    </svg>
+                    </i> Reports
+            </div>
+            <div class="nav-item">
+                <i><svg width="42" height="42" viewBox="0 0 42 42" fill="none" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+                    <rect width="42" height="42" fill="url(#pattern0_4_57)"/>
+                    <defs>
+                    <pattern id="pattern0_4_57" patternContentUnits="objectBoundingBox" width="1" height="1">
+                    <use xlink:href="#image0_4_57" transform="scale(0.015625)"/>
+                    </pattern>
+                    <image id="image0_4_57" width="64" height="64" preserveAspectRatio="none" xlink:href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAAACXBIWXMAAA7DAAAOwwHHb6hkAAAAGXRFWHRTb2Z0d2FyZQB3d3cuaW5rc2NhcGUub3Jnm+48GgAABS9JREFUeJzVm12IVVUYhp81+d9Ylk4a/sQEmhelUFFhKJYYBTVBSIURREmgRYERCEVQNwVddKeJeRHdSBaUmmZIYBeJlpNBZUVJmb+TVpb9jDI+Xew5Nsycfc7eZ+91zvRc7jn7e7937bXXXmt9awL/E9QFQBewAOgEJgGngEPAPmATsCWE8FfLkoyBulj9zGz0qE+ro1qdd2HUUeq6jMYHs1ed2WoPDaOOVXc0aL7CcXVuq73kRg3qxoLmKxxRp7TaUy7UZSWZr7C91Z4yo45XT5bcAKpdaZptzTSYgUeASyPEfSpCzPJRd0d4+qrn1M5qmsOmB6gTgOsihQ8kE6ghjCgjen/ys4BpwD/ASWB/COH3HGFmAReUkU8Kc6pdbLgB1PHAw8BSkic3OHnV3cAGYH0I4XSdkJc3mktGJpUSxeQ7vcx8o3WPuqxO3DvLfe2HsL6abq4xQB0LvAmsI99o3QGsM5ngjEn5zYk8uTTAkWoXMzeAyQJjM7CkQBJLgM3q6Cp/+wqwQOx6fFfobhtfmFRjdYrGrhI1BtKnTi5ifnGEpBZV0Xkygo7qzobN9yfWHSGp7io67SYDZtkMaew85udHSKjCTVX0yl4MbanlL8sgeHfDrVefIQNqCOE14K2S4v8APFTrB1kaYH4ZmaQwL+X6g8COgrGPAl0hhGKfV/XnkrvkQI7V0B2trm4w7ifqtELGByRypjS7Q+nNoL/I7IPwMXWFOjKrv5AhgT+A9qwBc9ITQsj0fTYZMJeQvDZXAhNJFl1HgW6SbfEPQgh/l5qh+kWch69W+RQ2myyD4L6I+jFjZyJLA2yKqP9OxNiZyDIGjCP5nnaUrH0c6Cz9nc1J3R7QX2t7OYL2C602Dxl6AJxfCu8Cri1J91NgXgjhbAbt6SSTsbnADOAy4BzJ0vkw8D2wB/g4w65T46gzTcpNRTlinUmKOsFkZZi1KKraq76r3qPG2exV5/YbaJQD6jU14o9Tn1FPFdBQ3a/eF6sRpqjbG0hqi5q6ManerH5b0Phg3resKXGVhLvUj0yKDmn0qTutsx5Xl6tnSzZf4bi6ME070yBYJ/lOkqLDHJKt5z6SUxsHgK0hhJ469z8HPF80jzr0AveGEGLOafJjvC2wapxRb2u15/OoC4zX7dP4xUEnR1pZG+wGngV+baLmJcAbaswSXD7UierrTe4JT7Ta9xDUO4y7+zSQHrUdGvwKmHShG4BbSAqjs0mKm5WNk9MkpahvgL3Ah8CeEMK5OnFnAG8D1zeSV05WhhBeyXWHOl19ST3UQKv/pL5o/WnwhRY/IZaFL/MY71DXmsy3i9KrrrH2rHCMySwuNldnMb/UOAeXTqj319BtN05FaiAraxkfabkF0TReNWUXV51qnFJZhQ1p5sepWyMKD+Y9k52narncZe31RhE+T3vyzTRfYYvpPWF9JM2h6xSb0+3TWJPSAJPV3yLo9Q4WeiCCSF6qbmSoqyJoHQoDBDqAr4lzUjMPJ4DZIYSTAy+qFwMHgYtK1Fo1sAHWAo+WGLwIq0MIjw2+qK4AFpYQ/zSwLYSwMfQHnkayuzpc/tPiDDAzhHAwtlBlOfw4w8c8JLksb4ZQMNlC/pHkmOtw4jBwRQihL6ZIG3Ajw888wFTiHZ4+TxvJkna4cmtsgTaas/ZulKb0gFmxRQpwVWyBNuIfUy9C9NzaiHf+pwzGxxYIaswT2oUJIRSuXtWiDfgzpkBB4tX7+2kDtsUWKcDW2AIj+G/KeTvDZzw4TWJ+yIKobP4FQhNIk/zH3fYAAAAASUVORK5CYII="/>
+                    </defs>
+                    </svg>
+                    </i> Accounts
+            </div>
+        </div>
+
+        
+
+            <!-- Orange Bar -->
+            <div class="orange-bar"></div>
+
+           
+               
